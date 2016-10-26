@@ -1,5 +1,5 @@
 function! sj#java#SplitFunction()
-  if getline('.') !~ '\w\+\s*(\([^,]*,\)\+.*)\s*{'
+  if getline('.') !~ '\w\+\s*(\([^,]*,\)\+.*)\(\w\|\s\)*{'
     return 0
   endif
 

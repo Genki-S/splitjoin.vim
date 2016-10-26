@@ -10,7 +10,7 @@ describe "java" do
 
   specify "function arguments" do
     set_file_contents <<-EOF
-      void myFunction(final int a, final int b, final int c, @Value(1) final int d) {
+      void myFunction(final int a, final int b, final int c, @Value(1) final int d) throws Exception {
         System.out.println("Hello, World");
       }
     EOF
@@ -24,7 +24,7 @@ describe "java" do
           final int b,
           final int c,
           @Value(1) final int d
-      ) {
+      ) throws Exception {
         System.out.println("Hello, World");
       }
     EOF
