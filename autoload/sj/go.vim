@@ -76,3 +76,63 @@ function! sj#go#JoinStruct()
   call sj#ReplaceMotion('va{', '{'.join(arguments, ', ').'}')
   return 1
 endfunction
+
+function! sj#go#SplitFunc()
+  let line = getline('.')
+  if line !~ '^func '
+    return 0
+  endif
+  let arg_open_brace_pat = '^func\(\s\+([^)]*)\|\)\s\+\w\+\zs('
+  let arg_close_brace_pat = '^func\(\s\+([^)]*)\|\)\s\+\w\+([^)]*\zs)'
+  let start = match(line, arg_open_brace_pat)
+  let end = match(line, arg_close_brace_pat)
+
+  if start == -1 || end == -1
+    return 0
+  endif
+
+  let parsed = sj#ParseJsonObjectBody(start + 2, end)
+  let args = []
+  let typedArg = ''
+  for elem in parsed
+    if match(elem, '\w\+\s\+\w\+') != -1
+      let typedArg .= elem
+      call add(args, typedArg)
+      let typedArg = ''
+    else
+      let typedArg .= elem . ', '
+    endif
+  endfor
+
+  call sj#ReplaceCols(start + 2, end, "\n".join(args, ",\n").",\n")
+  return 1
+endfunction
+
+function! sj#go#JoinFunc()
+  if getline('.') !~ '^func'
+    return 0
+  endif
+
+  let start_lineno = line('.')
+  if search('($', 'Wc', line('.')) <= 0
+    return 0
+  endif
+
+  normal! $%
+  let end_lineno = line('.')
+
+  if start_lineno == end_lineno
+    " we haven't moved, brackets not found
+    return 0
+  endif
+
+  let arguments = []
+  for line in getbufline('%', start_lineno + 1, end_lineno - 1)
+    let argument = substitute(line, ',$', '', '')
+    let argument = sj#Trim(argument)
+    call add(arguments, argument)
+  endfor
+
+  call sj#ReplaceMotion('va(', '('.join(arguments, ', ').')')
+  return 1
+endfunction

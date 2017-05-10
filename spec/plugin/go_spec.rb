@@ -106,4 +106,98 @@ describe "go" do
       StructType{one: 1, two: "asdf", three: []int{1, 2, 3}}
     EOF
   end
+
+  describe "funcs" do
+    def assert_split_join(initial, split_expected, join_expected)
+      set_file_contents initial
+      setup_go_filetype
+      split
+      # In case there is no Go installed, deindent everything:
+      vim.normal '5<<5<<5<<5<<'
+      vim.write
+      assert_file_contents split_expected
+      join
+      assert_file_contents join_expected
+    end
+
+    it "handles function definitions" do
+      initial = <<-EOF
+        func Func(a, b int, c time.Time, d, e string) {
+        }
+      EOF
+      split = <<-EOF
+        func Func(
+        a, b int,
+        c time.Time,
+        d, e string,
+        ) {
+        }
+      EOF
+      joined = <<-EOF
+        func Func(a, b int, c time.Time, d, e string) {
+        }
+      EOF
+      assert_split_join(initial, split, joined)
+    end
+
+    it "handles function definitions with return types" do
+      initial = <<-EOF
+        func Func(a, b int, c time.Time, d, e string) (r string, err error) {
+        }
+      EOF
+      split = <<-EOF
+        func Func(
+        a, b int,
+        c time.Time,
+        d, e string,
+        ) (r string, err error) {
+        }
+      EOF
+      joined = <<-EOF
+        func Func(a, b int, c time.Time, d, e string) (r string, err error) {
+        }
+      EOF
+      assert_split_join(initial, split, joined)
+    end
+
+    it "handles method definitions" do
+      initial = <<-EOF
+        func (r Receiver) Method(a, b int, c time.Time, d, e string) {
+        }
+      EOF
+      split = <<-EOF
+        func (r Receiver) Method(
+        a, b int,
+        c time.Time,
+        d, e string,
+        ) {
+        }
+      EOF
+      joined = <<-EOF
+        func (r Receiver) Method(a, b int, c time.Time, d, e string) {
+        }
+      EOF
+      assert_split_join(initial, split, joined)
+    end
+
+    it "handles method definitions with return types" do
+      initial = <<-EOF
+        func (r Receiver) Method(a, b int, c time.Time, d, e string) (r string, err error) {
+        }
+      EOF
+      split = <<-EOF
+        func (r Receiver) Method(
+        a, b int,
+        c time.Time,
+        d, e string,
+        ) (r string, err error) {
+        }
+      EOF
+      joined = <<-EOF
+        func (r Receiver) Method(a, b int, c time.Time, d, e string) (r string, err error) {
+        }
+      EOF
+      assert_split_join(initial, split, joined)
+    end
+  end
 end
