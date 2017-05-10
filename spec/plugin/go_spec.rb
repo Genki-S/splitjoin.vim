@@ -200,4 +200,32 @@ describe "go" do
       assert_split_join(initial, split, joined)
     end
   end
+
+  specify "func calls" do
+    set_file_contents <<-EOF
+      err := Func(a, b, c, d)
+    EOF
+    setup_go_filetype
+
+    split
+
+    # In case there is no Go installed, deindent everything:
+    vim.normal '5<<5<<5<<5<<'
+    vim.write
+
+    assert_file_contents <<-EOF
+      err := Func(
+      a,
+      b,
+      c,
+      d,
+      )
+    EOF
+
+    join
+
+    assert_file_contents <<-EOF
+      err := Func(a, b, c, d)
+    EOF
+  end
 end
