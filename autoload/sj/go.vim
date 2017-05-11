@@ -91,20 +91,23 @@ function! sj#go#SplitFunc()
     return 0
   endif
 
+  let type_pat = '\w\+\(\.\w\+\|\)'
+  let variadic_type_pat = '\.\.\.'.type_pat
+  let typed_arg_pat = '\w\+\s\+\('.variadic_type_pat.'\|'.type_pat.'\)'
   let parsed = sj#ParseJsonObjectBody(start + 2, end)
-  let args = []
-  let typedArg = ''
+  let arg_groups = []
+  let typed_arg_group = ''
   for elem in parsed
-    if match(elem, '\w\+\s\+\w\+') != -1
-      let typedArg .= elem
-      call add(args, typedArg)
-      let typedArg = ''
+    if match(elem, typed_arg_pat) != -1
+      let typed_arg_group .= elem
+      call add(arg_groups, typed_arg_group)
+      let typed_arg_group = ''
     else
-      let typedArg .= elem . ', '
+      let typed_arg_group .= elem . ', '
     endif
   endfor
 
-  call sj#ReplaceCols(start + 2, end, "\n".join(args, ",\n").",\n")
+  call sj#ReplaceCols(start + 2, end, "\n".join(arg_groups, ",\n").",\n")
   return 1
 endfunction
 

@@ -122,7 +122,7 @@ describe "go" do
 
     it "handles function definitions" do
       initial = <<-EOF
-        func Func(a, b int, c time.Time, d, e string) {
+        func Func(a, b int, c time.Time, d, e string, f ...time.Time) {
         }
       EOF
       split = <<-EOF
@@ -130,11 +130,12 @@ describe "go" do
         a, b int,
         c time.Time,
         d, e string,
+        f ...time.Time,
         ) {
         }
       EOF
       joined = <<-EOF
-        func Func(a, b int, c time.Time, d, e string) {
+        func Func(a, b int, c time.Time, d, e string, f ...time.Time) {
         }
       EOF
       assert_split_join(initial, split, joined)
@@ -142,7 +143,7 @@ describe "go" do
 
     it "handles function definitions with return types" do
       initial = <<-EOF
-        func Func(a, b int, c time.Time, d, e string) (r string, err error) {
+        func Func(a, b int, c time.Time, d, e string, f ...time.Time) (r string, err error) {
         }
       EOF
       split = <<-EOF
@@ -150,11 +151,12 @@ describe "go" do
         a, b int,
         c time.Time,
         d, e string,
+        f ...time.Time,
         ) (r string, err error) {
         }
       EOF
       joined = <<-EOF
-        func Func(a, b int, c time.Time, d, e string) (r string, err error) {
+        func Func(a, b int, c time.Time, d, e string, f ...time.Time) (r string, err error) {
         }
       EOF
       assert_split_join(initial, split, joined)
@@ -162,7 +164,7 @@ describe "go" do
 
     it "handles method definitions" do
       initial = <<-EOF
-        func (r Receiver) Method(a, b int, c time.Time, d, e string) {
+        func (r Receiver) Method(a, b int, c time.Time, d, e string, f ...time.Time) {
         }
       EOF
       split = <<-EOF
@@ -170,11 +172,12 @@ describe "go" do
         a, b int,
         c time.Time,
         d, e string,
+        f ...time.Time,
         ) {
         }
       EOF
       joined = <<-EOF
-        func (r Receiver) Method(a, b int, c time.Time, d, e string) {
+        func (r Receiver) Method(a, b int, c time.Time, d, e string, f ...time.Time) {
         }
       EOF
       assert_split_join(initial, split, joined)
@@ -182,7 +185,7 @@ describe "go" do
 
     it "handles method definitions with return types" do
       initial = <<-EOF
-        func (r Receiver) Method(a, b int, c time.Time, d, e string) (r string, err error) {
+        func (r Receiver) Method(a, b int, c time.Time, d, e string, f ...time.Time) (r string, err error) {
         }
       EOF
       split = <<-EOF
@@ -190,11 +193,12 @@ describe "go" do
         a, b int,
         c time.Time,
         d, e string,
+        f ...time.Time,
         ) (r string, err error) {
         }
       EOF
       joined = <<-EOF
-        func (r Receiver) Method(a, b int, c time.Time, d, e string) (r string, err error) {
+        func (r Receiver) Method(a, b int, c time.Time, d, e string, f ...time.Time) (r string, err error) {
         }
       EOF
       assert_split_join(initial, split, joined)
