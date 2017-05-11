@@ -113,7 +113,7 @@ describe "go" do
       setup_go_filetype
       split
       # In case there is no Go installed, deindent everything:
-      vim.normal '5<<5<<5<<5<<'
+      vim.normal '9<<9<<9<<9<<'
       vim.write
       assert_file_contents split_expected
       join
@@ -122,20 +122,21 @@ describe "go" do
 
     it "handles function definitions" do
       initial = <<-EOF
-        func Func(a, b int, c time.Time, d, e string, f ...time.Time) {
+        func Func(a, b int, c time.Time, d func(int) error, e func(int, int) (int, error), f ...time.Time) {
         }
       EOF
       split = <<-EOF
         func Func(
         a, b int,
         c time.Time,
-        d, e string,
+        d func(int) error,
+        e func(int, int) (int, error),
         f ...time.Time,
         ) {
         }
       EOF
       joined = <<-EOF
-        func Func(a, b int, c time.Time, d, e string, f ...time.Time) {
+        func Func(a, b int, c time.Time, d func(int) error, e func(int, int) (int, error), f ...time.Time) {
         }
       EOF
       assert_split_join(initial, split, joined)
@@ -143,20 +144,21 @@ describe "go" do
 
     it "handles function definitions with return types" do
       initial = <<-EOF
-        func Func(a, b int, c time.Time, d, e string, f ...time.Time) (r string, err error) {
+        func Func(a, b int, c time.Time, d func(int) error, e func(int, int) (int, error), f ...time.Time) (r string, err error) {
         }
       EOF
       split = <<-EOF
         func Func(
         a, b int,
         c time.Time,
-        d, e string,
+        d func(int) error,
+        e func(int, int) (int, error),
         f ...time.Time,
         ) (r string, err error) {
         }
       EOF
       joined = <<-EOF
-        func Func(a, b int, c time.Time, d, e string, f ...time.Time) (r string, err error) {
+        func Func(a, b int, c time.Time, d func(int) error, e func(int, int) (int, error), f ...time.Time) (r string, err error) {
         }
       EOF
       assert_split_join(initial, split, joined)
@@ -164,20 +166,21 @@ describe "go" do
 
     it "handles method definitions" do
       initial = <<-EOF
-        func (r Receiver) Method(a, b int, c time.Time, d, e string, f ...time.Time) {
+        func (r Receiver) Method(a, b int, c time.Time, d func(int) error, e func(int, int) (int, error), f ...time.Time) {
         }
       EOF
       split = <<-EOF
         func (r Receiver) Method(
         a, b int,
         c time.Time,
-        d, e string,
+        d func(int) error,
+        e func(int, int) (int, error),
         f ...time.Time,
         ) {
         }
       EOF
       joined = <<-EOF
-        func (r Receiver) Method(a, b int, c time.Time, d, e string, f ...time.Time) {
+        func (r Receiver) Method(a, b int, c time.Time, d func(int) error, e func(int, int) (int, error), f ...time.Time) {
         }
       EOF
       assert_split_join(initial, split, joined)
@@ -185,20 +188,21 @@ describe "go" do
 
     it "handles method definitions with return types" do
       initial = <<-EOF
-        func (r Receiver) Method(a, b int, c time.Time, d, e string, f ...time.Time) (r string, err error) {
+        func (r Receiver) Method(a, b int, c time.Time, d func(int) error, e func(int, int) (int, error), f ...time.Time) (r string, err error) {
         }
       EOF
       split = <<-EOF
         func (r Receiver) Method(
         a, b int,
         c time.Time,
-        d, e string,
+        d func(int) error,
+        e func(int, int) (int, error),
         f ...time.Time,
         ) (r string, err error) {
         }
       EOF
       joined = <<-EOF
-        func (r Receiver) Method(a, b int, c time.Time, d, e string, f ...time.Time) (r string, err error) {
+        func (r Receiver) Method(a, b int, c time.Time, d func(int) error, e func(int, int) (int, error), f ...time.Time) (r string, err error) {
         }
       EOF
       assert_split_join(initial, split, joined)

@@ -82,32 +82,24 @@ function! sj#go#SplitFunc()
   if line !~ '^func '
     return 0
   endif
-  let arg_open_brace_pat = '^func\(\s\+([^)]*)\|\)\s\+\w\+\zs('
-  let arg_close_brace_pat = '^func\(\s\+([^)]*)\|\)\s\+\w\+([^)]*\zs)'
-  let start = match(line, arg_open_brace_pat)
-  let end = match(line, arg_close_brace_pat)
 
-  if start == -1 || end == -1
-    return 0
-  endif
+  let [start, end] = s:parseFuncArgs(line)
+  let parsed = sj#ParseJsonObjectBody(start + 1, end)
 
-  let type_pat = '\w\+\(\.\w\+\|\)'
-  let variadic_type_pat = '\.\.\.'.type_pat
-  let typed_arg_pat = '\w\+\s\+\('.variadic_type_pat.'\|'.type_pat.'\)'
-  let parsed = sj#ParseJsonObjectBody(start + 2, end)
   let arg_groups = []
   let typed_arg_group = ''
   for elem in parsed
-    if match(elem, typed_arg_pat) != -1
+    if match(elem, '\s\+') != -1
       let typed_arg_group .= elem
       call add(arg_groups, typed_arg_group)
       let typed_arg_group = ''
     else
+      " not typed here, add to group
       let typed_arg_group .= elem . ', '
     endif
   endfor
 
-  call sj#ReplaceCols(start + 2, end, "\n".join(arg_groups, ",\n").",\n")
+  call sj#ReplaceCols(start + 1, end, "\n".join(arg_groups, ",\n").",\n")
   return 1
 endfunction
 
@@ -175,4 +167,27 @@ function! sj#go#JoinFuncCall()
 
   call sj#ReplaceMotion('va(', '('.join(arguments, ', ').')')
   return 1
+endfunction
+
+function! s:or(...)
+  return '\('.join(a:000, '\|').'\)'
+endfunction
+
+" Find start and end positions of brackets containing argument list.
+" This handles nested braces introduced by func types (see go_spec.rb).
+function! s:parseFuncArgs(line)
+  let receiver_pat = '\s\+([^)]*)'
+  let arg_open_brace_pat = '^func'.s:or(receiver_pat, '').'\s\+\w\+(\zs\ze'
+  let start = match(a:line, arg_open_brace_pat)
+  let braces = 1
+  let i = start
+  while i < strlen(a:line) && braces > 0
+    if a:line[i] == '('
+      let braces += 1
+    elseif a:line[i] == ')'
+      let braces -= 1
+    endif
+    let i += 1
+  endwhile
+  return [start, i - 1]
 endfunction
